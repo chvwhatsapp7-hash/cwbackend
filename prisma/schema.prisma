@@ -9,3 +9,26 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+model User {
+  user_id         BigInt     @id @default(autoincrement())
+  first_name      String     @db.VarChar(255)
+  last_name       String     @db.VarChar(255)
+  email           String     @unique @db.VarChar(255)
+  whatsapp_number String     @unique @db.VarChar(50)
+  website         String?    @db.VarChar(255)
+  country         String?    @db.VarChar(100)
+  gst_num         String     @unique @db.VarChar(50)
+  api_key         String?
+  status          Int?       @default(1) @db.SmallInt
+  password        String
+  role            String
+  contacts        contacts[]
+}
+
+model contacts {
+  contactid BigInt  @id @default(autoincrement())
+  name      String? @db.VarChar(255)
+  phonenum  String? @db.VarChar(20)
+  userid    BigInt?
+  User      User?   @relation(fields: [userid], references: [user_id], onDelete: NoAction, onUpdate: NoAction)
+}

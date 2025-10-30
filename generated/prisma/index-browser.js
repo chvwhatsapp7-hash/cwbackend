@@ -120,9 +120,47 @@ exports.Prisma.TransactionIsolationLevel = makeStrictEnum({
   Serializable: 'Serializable'
 });
 
+exports.Prisma.UserScalarFieldEnum = {
+  user_id: 'user_id',
+  first_name: 'first_name',
+  last_name: 'last_name',
+  email: 'email',
+  whatsapp_number: 'whatsapp_number',
+  website: 'website',
+  country: 'country',
+  gst_num: 'gst_num',
+  api_key: 'api_key',
+  status: 'status',
+  password: 'password',
+  role: 'role'
+};
+
+exports.Prisma.ContactsScalarFieldEnum = {
+  contactid: 'contactid',
+  name: 'name',
+  phonenum: 'phonenum',
+  userid: 'userid'
+};
+
+exports.Prisma.SortOrder = {
+  asc: 'asc',
+  desc: 'desc'
+};
+
+exports.Prisma.QueryMode = {
+  default: 'default',
+  insensitive: 'insensitive'
+};
+
+exports.Prisma.NullsOrder = {
+  first: 'first',
+  last: 'last'
+};
+
 
 exports.Prisma.ModelName = {
-
+  User: 'User',
+  contacts: 'contacts'
 };
 
 /**

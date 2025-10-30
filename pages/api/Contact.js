@@ -6,6 +6,23 @@ export default async function Contact(req, res) {
 const method = req.method;
 const action = req.query.action;
 
+if (method === "GET") {
+    try {
+        const user = await authenticate(req, res);
+        if (!user) return res.status(401).json({ message: "Unauthorized" });
+
+        const result = await pool.query(
+            'SELECT * FROM contacts WHERE userId = $1 ORDER BY name ASC',
+            [user.user_id]
+        );
+
+        return res.status(200).json({ contacts: result.rows });
+    } catch (error) {
+        console.error("Get Contacts Error:", error);
+        return res.status(500).json({ message: "Internal Server Error" });
+    }
+}
+
 if (method !== "POST") {
 return res.status(405).json({ message: "Method not allowed" });
 }
@@ -23,21 +40,21 @@ if (action === "addcontacts") {
     }
 
     for (const c of contactList) {
-    if (!c.name || !c.phoneNum) {
+    if (!c.name || !c.phonenum) {
         return res
         .status(400)
-        .json({ message: "Each contact must have name and phoneNum" });
+        .json({ message: "Each contact must have name and phonenum" });
     }
     }
 
     const query = `
-    INSERT INTO contacts (name, phoneNum, userId)
+    INSERT INTO contacts (name, phonenum, userId)
     VALUES ${contactList
         .map((_, i) => `($${i * 3 + 1}, $${i * 3 + 2}, $${i * 3 + 3})`)
         .join(", ")}
     RETURNING *;
     `;
-    const values = contactList.flatMap(c => [c.name, c.phoneNum, user.user_id]);
+    const values = contactList.flatMap(c => [c.name, c.phonenum, user.user_id]);
 
     await pool.query("BEGIN");
     let result;

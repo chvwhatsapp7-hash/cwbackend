@@ -92,9 +92,47 @@ exports.Prisma.TransactionIsolationLevel = makeStrictEnum({
   Serializable: 'Serializable'
 });
 
+exports.Prisma.UserScalarFieldEnum = {
+  user_id: 'user_id',
+  first_name: 'first_name',
+  last_name: 'last_name',
+  email: 'email',
+  whatsapp_number: 'whatsapp_number',
+  website: 'website',
+  country: 'country',
+  gst_num: 'gst_num',
+  api_key: 'api_key',
+  status: 'status',
+  password: 'password',
+  role: 'role'
+};
+
+exports.Prisma.ContactsScalarFieldEnum = {
+  contactid: 'contactid',
+  name: 'name',
+  phonenum: 'phonenum',
+  userid: 'userid'
+};
+
+exports.Prisma.SortOrder = {
+  asc: 'asc',
+  desc: 'desc'
+};
+
+exports.Prisma.QueryMode = {
+  default: 'default',
+  insensitive: 'insensitive'
+};
+
+exports.Prisma.NullsOrder = {
+  first: 'first',
+  last: 'last'
+};
+
 
 exports.Prisma.ModelName = {
-
+  User: 'User',
+  contacts: 'contacts'
 };
 /**
  * Create the Client
@@ -107,7 +145,7 @@ const config = {
       "value": "prisma-client-js"
     },
     "output": {
-      "value": "C:\\Users\\joshi\\Desktop\\Wan Notifier Integration\\wmarketing_backend\\generated\\prisma",
+      "value": "E:\\Projects\\CHV\\cwbackend\\generated\\prisma",
       "fromEnvVar": null
     },
     "config": {
@@ -120,12 +158,14 @@ const config = {
         "native": true
       }
     ],
-    "previewFeatures": [],
-    "sourceFilePath": "C:\\Users\\joshi\\Desktop\\Wan Notifier Integration\\wmarketing_backend\\prisma\\schema.prisma",
+    "previewFeatures": [
+      "driverAdapters"
+    ],
+    "sourceFilePath": "E:\\Projects\\CHV\\cwbackend\\prisma\\schema.prisma",
     "isCustomOutput": true
   },
   "relativeEnvPaths": {
-    "rootEnvPath": "../../.env",
+    "rootEnvPath": null,
     "schemaEnvPath": "../../.env"
   },
   "relativePath": "../../prisma",
@@ -143,13 +183,13 @@ const config = {
       }
     }
   },
-  "inlineSchema": "// This is your Prisma schema file,\n// learn more about it in the docs: https://pris.ly/d/prisma-schema\n\n// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?\n// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init\n\ngenerator client {\n  provider = \"prisma-client-js\"\n  output   = \"../generated/prisma\"\n}\n\ndatasource db {\n  provider = \"postgresql\"\n  url      = env(\"DATABASE_URL\")\n}\n",
-  "inlineSchemaHash": "99605b976d14dee99c394828b1c2a62deafc51a4fda3251761a240d4cc88e515",
+  "inlineSchema": "generator client {\n  provider        = \"prisma-client-js\"\n  output          = \"../generated/prisma\"\n  previewFeatures = [\"driverAdapters\"]\n}\n\ndatasource db {\n  provider = \"postgresql\"\n  url      = env(\"DATABASE_URL\")\n}\n\nmodel User {\n  user_id         BigInt     @id @default(autoincrement())\n  first_name      String     @db.VarChar(255)\n  last_name       String     @db.VarChar(255)\n  email           String     @unique @db.VarChar(255)\n  whatsapp_number String     @unique @db.VarChar(50)\n  website         String?    @db.VarChar(255)\n  country         String?    @db.VarChar(100)\n  gst_num         String     @unique @db.VarChar(50)\n  api_key         String?\n  status          Int?       @default(1) @db.SmallInt\n  password        String\n  role            String\n  contacts        contacts[]\n}\n\nmodel contacts {\n  contactid BigInt  @id @default(autoincrement())\n  name      String? @db.VarChar(255)\n  phonenum  String? @db.VarChar(20)\n  userid    BigInt?\n  User      User?   @relation(fields: [userid], references: [user_id], onDelete: NoAction, onUpdate: NoAction)\n}\n",
+  "inlineSchemaHash": "3e8c3d63f7d644aac7bf4fcca82d06a36ba9654a73aa6f434bba95054860c660",
   "copyEngine": true
 }
 config.dirname = '/'
 
-config.runtimeDataModel = JSON.parse("{\"models\":{},\"enums\":{},\"types\":{}}")
+config.runtimeDataModel = JSON.parse("{\"models\":{\"User\":{\"fields\":[{\"name\":\"user_id\",\"kind\":\"scalar\",\"type\":\"BigInt\"},{\"name\":\"first_name\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"last_name\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"email\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"whatsapp_number\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"website\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"country\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"gst_num\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"api_key\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"status\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"password\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"role\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"contacts\",\"kind\":\"object\",\"type\":\"contacts\",\"relationName\":\"UserTocontacts\"}],\"dbName\":null},\"contacts\":{\"fields\":[{\"name\":\"contactid\",\"kind\":\"scalar\",\"type\":\"BigInt\"},{\"name\":\"name\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"phonenum\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"userid\",\"kind\":\"scalar\",\"type\":\"BigInt\"},{\"name\":\"User\",\"kind\":\"object\",\"type\":\"User\",\"relationName\":\"UserTocontacts\"}],\"dbName\":null}},\"enums\":{},\"types\":{}}")
 defineDmmfProperty(exports.Prisma, config.runtimeDataModel)
 config.engineWasm = {
   getRuntime: async () => require('./query_engine_bg.js'),
