@@ -32,23 +32,22 @@ export default async function login(req, res) {
     const accessToken = generateAccessToken(tokenPayload);
     const refreshToken = generateRefreshToken(tokenPayload);
 
-    // ✅ Set cookies for localhost (React dev)
-    res.setHeader("Set-Cookie", [
-      cookie.serialize("accessToken", accessToken, {
-        httpOnly: true,
-        secure: false,       // localhost
-        sameSite: "lax",     // localhost
-        path: "/",
-        maxAge: 15 * 60,
-      }),
-      cookie.serialize("refreshToken", refreshToken, {
-        httpOnly: true,
-        secure: false,
-        sameSite: "lax",
-        path: "/",
-        maxAge: 7 * 24 * 60 * 60,
-      }),
-    ]);
+        res.setHeader("Set-Cookie", [
+            cookie.serialize("accessToken", accessToken, {
+                httpOnly: true,
+                secure: process.env.NODE_ENV === "production",
+                sameSite: "lax",
+                path: "/",
+                maxAge: 15 * 60,
+            }),
+            cookie.serialize("refreshToken", refreshToken, {
+                httpOnly: true,
+                secure: process.env.NODE_ENV === "production",
+                sameSite: "lax",
+                path: "/",
+                maxAge: 7 * 24 * 60 * 60,
+            }),
+        ]);
 
     return res.status(200).json({
       message: "Login successful",
