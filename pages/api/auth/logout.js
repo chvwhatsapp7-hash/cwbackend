@@ -1,6 +1,11 @@
 import cookie from "cookie";
+import { cors } from "../../../lib/cors.js";
 
 export default async function logout(req, res) {
+
+  cors(req, res);
+    if (req.method === "OPTIONS") return;
+    
   if (req.method !== "POST") {
     res.setHeader("Allow", ["POST"]);
     return res.status(405).json({ message: "Method not allowed" });
