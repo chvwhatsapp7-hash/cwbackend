@@ -22,13 +22,41 @@ model User {
   status          Int?       @default(1) @db.SmallInt
   password        String
   role            String
+  isPremium Boolean @default(false)
+
   contacts        contacts[]
+  messages        messages[]
 }
 
 model contacts {
-  contactid BigInt  @id @default(autoincrement())
-  name      String? @db.VarChar(255)
-  phonenum  String? @db.VarChar(20)
-  userid    BigInt?
-  User      User?   @relation(fields: [userid], references: [user_id], onDelete: NoAction, onUpdate: NoAction)
+  contactid       BigInt     @id @default(autoincrement())
+  name            String?    @db.VarChar(255)
+  phonenum        String?    @db.VarChar(20)
+  userid          BigInt? 
+  User            User?      @relation(fields: [userid], references: [user_id], onDelete: NoAction, onUpdate: NoAction)
+
+  numbers         number[]
+}
+
+
+model messages {
+messageid       BigInt       @id @default(autoincrement())
+message         String?      @db.Text
+image           String?      @db.VarChar(255)
+campaignid      BigInt?
+userid          BigInt?
+User            User?        @relation(fields: [userid], references: [user_id], onDelete: NoAction, onUpdate: NoAction)
+button          String?      @db.Text
+
+sentItems       number[]     @relation("message_sentitems")
+}
+
+
+model number {
+sentid          BigInt       @id @default(autoincrement())
+messageid       BigInt?
+contactid       BigInt?
+
+messages        messages?    @relation("message_sentitems", fields: [messageid], references: [messageid], onDelete: NoAction, onUpdate: NoAction)
+contacts        contacts?    @relation(fields: [contactid], references: [contactid], onDelete: NoAction, onUpdate: NoAction)
 }
