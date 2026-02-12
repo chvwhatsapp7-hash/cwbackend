@@ -4,23 +4,32 @@ import { cors } from "../../lib/cors.js";
 
 export default async function register(req, res) {
   if (cors(req, res)) return; 
-  if (req.method !== "POST") {
-    res.setHeader("Allow", ["POST"]);
-    return res.status(405).json({ message: "Method not allowed" });
-  }
+  // ✅ Allow CORS preflight
+if (req.method === "OPTIONS") {
+  return res.status(200).end();
+}
+
+if (req.method !== "POST") {
+  res.setHeader("Allow", ["POST"]);
+  return res.status(405).json({ message: "Method not allowed" });
+}
+
 
   try {
     const {
-      first_name,
-      last_name,
-      email,
-      password,
-      whatsapp_number,
-      country,
-      gst_num,
-      website,
-      api_key,
-    } = req.body;
+  first_name,
+  last_name,
+  email,
+  password,
+  whatsapp_number,
+  country,
+  gst_num,
+  website,
+  api_key,
+  role,
+  created_by
+} = req.body;
+
 
     if (!email || !password) {
       return res
@@ -38,23 +47,26 @@ export default async function register(req, res) {
     const hashedPassword = await hashpassword(password);
 
     const query = `
-      INSERT INTO "User"
-      (first_name, last_name, email, password, whatsapp_number, country, role, gst_num, website, api_key)
-      VALUES ($1, $2, $3, $4, $5, $6, 'client', $7, $8, $9)
-      RETURNING user_id, first_name, last_name, email, role;
-    `;
+  INSERT INTO "User"
+  (first_name, last_name, email, password, whatsapp_number, country, role, gst_num, website, api_key, created_by)
+  VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11)
+  RETURNING user_id, first_name, last_name, email, role, created_by;
+`;
+
 
     const values = [
-      first_name,
-      last_name,
-      email,
-      hashedPassword,
-      whatsapp_number,
-      country,
-      gst_num,
-      website,
-      api_key,
-    ];
+  first_name,
+  last_name,
+  email,
+  hashedPassword,
+  whatsapp_number,
+  country,
+  role || "client",
+  gst_num,
+  website,
+  api_key,
+  created_by ?? 0,
+];
 
     const result = await pool.query(query, values);
     return res.status(201).json(result.rows[0]);

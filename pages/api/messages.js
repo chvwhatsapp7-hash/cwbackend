@@ -1,10 +1,14 @@
 // file: /pages/api/messages.js
 import { pool } from "../../lib/database";
+import { authenticate } from "../../lib/auth";
 
 export default async function handler(req, res) {
+  const user = await authenticate(req, res);
+      if (!user) return res.status(401).json({ message: "Unauthorized" });
   if (req.method === "POST") {
     // ----------------- POST: store bulk messages -----------------
-    const { user_id, template_id, message, contacts, image, button } = req.body;
+const { template_id, message, contacts, image, button } = req.body;
+const user_id = user.user_id; // 👈 from logged-in user
 
     if (!message || !contacts || contacts.length === 0) {
       return res.status(400).json({ error: "Message and contacts are required" });
@@ -56,11 +60,7 @@ export default async function handler(req, res) {
   } 
   else if (req.method === "GET") {
   // Expect ?user_id=123 in the query
-  const { user_id } = req.query;
-
-  if (!user_id) {
-    return res.status(400).json({ error: "user_id query parameter is required" });
-  }
+  const user_id = user.user_id; // 👈 from logged-in user
 
   try {
     const messagesRes = await pool.query(

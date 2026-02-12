@@ -14,8 +14,10 @@ export default async function login(req, res) {
   }
 
   try {
-    const { email, password } = req.body;
+const { email, password } = req.body;
     if (!email || !password) return res.status(400).json({ message: "Email and password required" });
+  
+
 
     const result = await pool.query(
       `SELECT user_id, email, password, role FROM "User" WHERE LOWER(email) = $1`,
