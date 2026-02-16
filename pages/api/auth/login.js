@@ -52,13 +52,22 @@ const { email, password } = req.body;
               }),
         ]);
 
-    return res.status(200).json({
-      message: "Login successful",
-      user: { id: user.user_id, email: user.email, role: user.role },
-    });
+    // after setting cookies
+
+return res.status(200).json({
+  
+  message: "Login successful",
+  user_id: user.user_id,
+  role: user.role
+  
+});
+
+
 
   } catch (err) {
     console.error("Login failed:", err.message);
     return res.status(500).json({ message: "Login failed", error: err.message });
   }
 }
+
+

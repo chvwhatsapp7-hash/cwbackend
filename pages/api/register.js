@@ -5,9 +5,7 @@ import { cors } from "../../lib/cors.js";
 export default async function register(req, res) {
   if (cors(req, res)) return; 
   // ✅ Allow CORS preflight
-if (req.method === "OPTIONS") {
-  return res.status(200).end();
-}
+
 
 if (req.method !== "POST") {
   res.setHeader("Allow", ["POST"]);
