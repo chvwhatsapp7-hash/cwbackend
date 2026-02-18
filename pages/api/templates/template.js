@@ -108,6 +108,7 @@ import { pool } from "../../../lib/database.js";
 import { authenticate } from "../../../lib/auth";
 
 export default async function handler(req, res) {
+if (cors(req, res)) return;
 
   if (req.method === "POST") {
     const user = await authenticate(req, res);
