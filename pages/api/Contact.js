@@ -3,7 +3,7 @@ import { authenticate } from "../../lib/auth";
 import { cors } from "../../lib/cors";
 
 async function findColumn(tableName, candidates = []) {
-
+if (cors(req, res)) return;
   try {
     const q = await pool.query(
       `SELECT column_name FROM information_schema.columns WHERE lower(table_name) = lower($1)`,
