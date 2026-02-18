@@ -5,8 +5,9 @@ import cookie from "cookie";
 import { cors } from "../../../lib/cors.js";
 
 export default async function login(req, res) {
-  cors(req, res);
-  if (req.method === "OPTIONS") return;
+
+  // 🚨 MUST RETURN HERE
+  if (cors(req, res)) return;
 
   if (req.method !== "POST") {
     res.setHeader("Allow", ["POST"]);
@@ -44,20 +45,20 @@ export default async function login(req, res) {
     const accessToken = generateAccessToken(tokenPayload);
     const refreshToken = generateRefreshToken(tokenPayload);
 
-    const isProduction = process.env.VERCEL === "1";
+    const isProd = process.env.NODE_ENV === "production";
 
     res.setHeader("Set-Cookie", [
       cookie.serialize("accessToken", accessToken, {
         httpOnly: true,
-        secure: isProduction,
-        sameSite: isProduction ? "none" : "lax",
+        secure: isProd,
+        sameSite: isProd ? "none" : "lax",
         path: "/",
         maxAge: 15 * 60,
       }),
       cookie.serialize("refreshToken", refreshToken, {
         httpOnly: true,
-        secure: isProduction,
-        sameSite: isProduction ? "none" : "lax",
+        secure: isProd,
+        sameSite: isProd ? "none" : "lax",
         path: "/",
         maxAge: 7 * 24 * 60 * 60,
       }),
@@ -71,9 +72,6 @@ export default async function login(req, res) {
 
   } catch (err) {
     console.error("Login failed:", err);
-    return res.status(500).json({
-      message: "Login failed",
-      error: err.message,
-    });
+    return res.status(500).json({ message: "Login failed" });
   }
 }
