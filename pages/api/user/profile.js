@@ -1,8 +1,9 @@
 // pages/api/user/profile.js
 import { pool } from "../../../lib/database.js";
 import { authenticate } from "../../../lib/auth.js";
-
+import { cors } from "../../../lib/cors.js";
 export default async function profile(req, res) {
+  if (cors(req, res)) return;
   try {
     const decoded = authenticate(req, res);
     const user_id = decoded.user_id;

@@ -3,6 +3,7 @@ import { hashpassword, verifypassword } from "../../../lib/hash.js";
 import { authenticate } from "../../../lib/auth.js";
 
 export default async function updatePassword(req, res) {
+  if (cors(req, res)) return;
   if (req.method !== "PUT") {
     res.setHeader("Allow", ["PUT"]);
     return res.status(405).json({ message: "Method not allowed" });

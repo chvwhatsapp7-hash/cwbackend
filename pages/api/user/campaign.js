@@ -1,7 +1,9 @@
 import { pool } from "../../../lib/database.js";
 import { authenticate } from "../../../lib/auth.js";
+import { cors } from "../../../lib/cors.js";
 
 export default async function handler(req, res) {
+  if (cors(req, res)) return;
   const { method, query, body } = req;
   const { action, id } = query;
 

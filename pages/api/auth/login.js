@@ -5,8 +5,9 @@ import cookie from "cookie";
 import { cors } from "../../../lib/cors.js";
 
 export default async function login(req, res) {
-  cors(req, res);
-  if (req.method === "OPTIONS") return;
+
+  // 🚨 MUST RETURN HERE
+  if (cors(req, res)) return;
 
   if (req.method !== "POST") {
     res.setHeader("Allow", ["POST"]);
@@ -14,60 +15,63 @@ export default async function login(req, res) {
   }
 
   try {
-const { email, password } = req.body;
-    if (!email || !password) return res.status(400).json({ message: "Email and password required" });
-  
+    const { email, password } = req.body;
 
+    if (!email || !password) {
+      return res.status(400).json({ message: "Email and password required" });
+    }
 
     const result = await pool.query(
       `SELECT user_id, email, password, role FROM "User" WHERE LOWER(email) = $1`,
       [email.trim().toLowerCase()]
     );
 
-    if (result.rows.length === 0) return res.status(404).json({ message: "User not found" });
+    if (result.rows.length === 0) {
+      return res.status(404).json({ message: "User not found" });
+    }
 
     const user = result.rows[0];
-    const isMatch = await verifypassword(password, user.password);
-    if (!isMatch) return res.status(401).json({ message: "Invalid credentials" });
 
-    const tokenPayload = { user_id: user.user_id, role: user.role };
+    const isMatch = await verifypassword(password, user.password);
+    if (!isMatch) {
+      return res.status(401).json({ message: "Invalid credentials" });
+    }
+
+    const tokenPayload = {
+      user_id: user.user_id,
+      role: user.role,
+    };
+
     const accessToken = generateAccessToken(tokenPayload);
     const refreshToken = generateRefreshToken(tokenPayload);
 
-        const isProd = process.env.NODE_ENV === "production";
-        res.setHeader("Set-Cookie", [
-            cookie.serialize("accessToken", accessToken, {
-                httpOnly: true,
-                secure: isProd,
-                sameSite: isProd ? "none" : "lax",
-                path: "/",
-                maxAge: 15 * 60,
-              }),
-              cookie.serialize("refreshToken", refreshToken, {
-                httpOnly: true,
-                secure: isProd,
-                sameSite: isProd ? "none" : "lax",
-                path: "/",
-                maxAge: 7 * 24 * 60 * 60,
-              }),
-        ]);
+    const isProd = process.env.NODE_ENV === "production";
 
-    // after setting cookies
+    res.setHeader("Set-Cookie", [
+      cookie.serialize("accessToken", accessToken, {
+        httpOnly: true,
+        secure: isProd,
+        sameSite: isProd ? "none" : "lax",
+        path: "/",
+        maxAge: 15 * 60,
+      }),
+      cookie.serialize("refreshToken", refreshToken, {
+        httpOnly: true,
+        secure: isProd,
+        sameSite: isProd ? "none" : "lax",
+        path: "/",
+        maxAge: 7 * 24 * 60 * 60,
+      }),
+    ]);
 
-return res.status(200).json({
-  
-  message: "Login successful",
-  user_id: user.user_id,
-  role: user.role
-  
-});
-
-
+    return res.status(200).json({
+      message: "Login successful",
+      user_id: user.user_id,
+      role: user.role,
+    });
 
   } catch (err) {
-    console.error("Login failed:", err.message);
-    return res.status(500).json({ message: "Login failed", error: err.message });
+    console.error("Login failed:", err);
+    return res.status(500).json({ message: "Login failed" });
   }
 }
-
-
