@@ -25,135 +25,45 @@ model User {
 
   api_key         String?
   status          Int?       @default(1) @db.SmallInt
-  isPremium       Boolean    @default(false)
-  created_by      String?    @default("self") @db.VarChar(20)
+  password        String
+  role            String
+  isPremium Boolean @default(false)
 
-  campaigns       Campaign[]
-  contacts        Contact[]
-  messages        Message[]
-  templates       Template[]
+  contacts        contacts[]
+  messages        messages[]
+}
 
-  @@map("User")
+model contacts {
+  contactid       BigInt     @id @default(autoincrement())
+  name            String?    @db.VarChar(255)
+  phonenum        String?    @db.VarChar(20)
+  userid          BigInt? 
+  User            User?      @relation(fields: [userid], references: [user_id], onDelete: NoAction, onUpdate: NoAction)
+
+  numbers         number[]
 }
 
 
-model Campaign {
-  campaignid BigInt   @id @default(autoincrement())
-  userid     BigInt
-  campaign_name String
-  templateid BigInt   // ✅ column name as you want
-  createdON  DateTime @default(now()) @db.Timestamptz
-  status     Boolean  @default(true)
+model messages {
+messageid       BigInt       @id @default(autoincrement())
+message         String?      @db.Text
+image           String?      @db.VarChar(255)
+campaignid      BigInt?
+userid          BigInt?
+User            User?        @relation(fields: [userid], references: [user_id], onDelete: NoAction, onUpdate: NoAction)
+button          String?      @db.Text
 
-  user       User     @relation(fields: [userid], references: [user_id], onDelete: Cascade)
-
-  template   Template @relation(fields: [templateid], references: [template_id], onDelete: Cascade)
-
-  messages   Message[]
-
-  @@map("campaign")
+sentItems       number[]     @relation("message_sentitems")
 }
 
 
-model Contact {
-  contactid BigInt   @id @default(autoincrement())
-  name      String?  @db.VarChar(255)
-  phonenum  String?  @db.VarChar(20)
-  userid    BigInt?
+model number {
+sentid          BigInt       @id @default(autoincrement())
+messageid       BigInt?
+contactid       BigInt?
 
-  created_at DateTime @default(now()) @map("created_at")
-
-  user      User?    @relation(fields: [userid], references: [user_id], onDelete: Cascade)
-
-  receipts  MessageReceipt[]
-
-  @@map("contacts")
-}
-
-
-model Message {
-  messageid  BigInt   @id @default(autoincrement())
-  message    String   @db.Text
-  image      String?  @db.VarChar(255)
-  campaignid BigInt?
-  user_id    BigInt
-  button     String?  @db.Text
-  created_at DateTime @default(now()) @db.Timestamptz
-
-  user       User     @relation(fields: [user_id], references: [user_id], onDelete: Cascade)
-  campaign   Campaign? @relation(fields: [campaignid], references: [campaignid])
-
-  receipts   MessageReceipt[]
-
-  @@map("messages")
-}
-
-model MessageReceipt {
-  sentid          BigInt   @id @default(autoincrement())
-  messageid       BigInt
-  contactid       BigInt
-  template_id     BigInt?
-  provider_msg_id String?  @db.VarChar(100)
-  status          String   @default("queued") @db.VarChar(50)
-  sent_at         DateTime @default(now()) @db.Timestamptz
-  delivered_at    DateTime? @db.Timestamptz
-  read_at         DateTime? @db.Timestamptz
-  error_message   String?  @db.Text
-
-  message   Message  @relation(fields: [messageid], references: [messageid], onDelete: Cascade)
-  contact   Contact  @relation(fields: [contactid], references: [contactid], onDelete: Cascade)
-  template  Template? @relation(fields: [template_id], references: [template_id], onDelete: SetNull)
-
-  @@index([messageid])
-  @@index([contactid])
-  @@index([status])
-  @@index([provider_msg_id])
-  @@index([template_id])
-
-  @@map("message_receipts")
-}
-
-model Template {
-  template_id BigInt @id @default(autoincrement())
-  created_by       BigInt
-
-  template_name    String   @unique @db.VarChar(100)
-  category         String   @db.VarChar(30)
-  language         String   @db.VarChar(10)
-  template_type    String   @default("custom") @db.VarChar(30)
-
-  header_type      String?  @db.VarChar(20)
-  header_text      String?  @db.VarChar(255)
-  header_media_url String?  @db.Text
-
-  message_body     String   @db.Text
-  footer_text      String?  @db.VarChar(255)
-
-  variable_count   Int      @default(0)
-  variables        Json?
-
-  created_at       DateTime @default(now())
-  updated_at       DateTime? @updatedAt
-
-  user        User            @relation(fields: [created_by], references: [user_id], onDelete: Cascade)
-  buttons     TemplateButton[]
-  receipts    MessageReceipt[]
-  campaigns   Campaign[]
-  @@map("template_table")
-}
-
-model TemplateButton {
-  button_id    Int      @id @default(autoincrement())
-  template_id  BigInt
-  button_type  String   @db.VarChar(30)
-  button_text  String   @db.VarChar(25)
-  button_value String?  @db.VarChar(255)
-  position     Int
-  created_at   DateTime @default(now())
-
-  template     Template @relation(fields: [template_id], references: [template_id], onDelete: Cascade)
-
-  @@map("template_buttons")
+messages        messages?    @relation("message_sentitems", fields: [messageid], references: [messageid], onDelete: NoAction, onUpdate: NoAction)
+contacts        contacts?    @relation(fields: [contactid], references: [contactid], onDelete: NoAction, onUpdate: NoAction)
 }
 
 
