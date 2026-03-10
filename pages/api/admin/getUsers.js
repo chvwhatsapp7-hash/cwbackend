@@ -21,7 +21,7 @@ export default async function handler(req, res) {
       country,
       gst_num,
       status,
-      ispremium,
+      "isPremium",
       role
    FROM "User"
    ORDER BY user_id DESC`

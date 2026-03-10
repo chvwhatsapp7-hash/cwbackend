@@ -18,6 +18,11 @@ model User {
   website         String?    @db.VarChar(255)
   country         String?    @db.VarChar(100)
   gst_num         String     @unique @db.VarChar(50)
+
+  password        String     @db.VarChar(255)   // 🔐 hashed password
+  business_name   String?    @db.VarChar(255)   // optional business name
+  role            String     @default("client") @db.VarChar(50)
+
   api_key         String?
   status          Int?       @default(1) @db.SmallInt
   password        String
@@ -60,3 +65,6 @@ contactid       BigInt?
 messages        messages?    @relation("message_sentitems", fields: [messageid], references: [messageid], onDelete: NoAction, onUpdate: NoAction)
 contacts        contacts?    @relation(fields: [contactid], references: [contactid], onDelete: NoAction, onUpdate: NoAction)
 }
+
+
+

@@ -1,7 +1,9 @@
 import { pool } from "../../../lib/database.js";
 import { authenticate } from "../../../lib/auth.js";
+import { cors } from "../../../lib/cors.js";
 
 export default async function handler(req, res) {
+  if (cors(req, res)) return;
   const { method, query, body } = req;
   const { action, id } = query;
 
@@ -33,8 +35,8 @@ export default async function handler(req, res) {
 
       const result = await pool.query(
         `INSERT INTO campaign (userid, templateid, campaign_name, status)
-         VALUES ($1, $2, $3, $4)
-         RETURNING *`,
+        VALUES ($1, $2, $3, $4)
+        RETURNING *`,
         [
           userid,
           templateid || null,
