@@ -32,7 +32,7 @@ model contacts {
   contactid       BigInt     @id @default(autoincrement())
   name            String?    @db.VarChar(255)
   phonenum        String?    @db.VarChar(20)
-  userid          BigInt? 
+  userid          BigInt?
   User            User?      @relation(fields: [userid], references: [user_id], onDelete: NoAction, onUpdate: NoAction)
 
   numbers         number[]
@@ -52,7 +52,7 @@ sentItems       number[]     @relation("message_sentitems")
 }
 
 
-model number {
+model message_recepients {
 sentid          BigInt       @id @default(autoincrement())
 messageid       BigInt?
 contactid       BigInt?
