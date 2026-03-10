@@ -12,7 +12,7 @@ export default async function handler(req, res) {
 
   try {
     await pool.query(
-      `UPDATE "User" SET ispremium = $1 WHERE user_id = $2`,
+      `UPDATE "User" SET "isPremium" = $1 WHERE user_id = $2`,
       [ispremium, user_id]
     );
 

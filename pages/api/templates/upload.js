@@ -1,32 +1,26 @@
-import fs from "fs";
-import path from "path";
+import { S3Client, PutObjectCommand } from "@aws-sdk/client-s3";
 import multer from "multer";
+import { cors } from "../../../lib/cors.js";
 
 export const config = {
-  api: {
-    bodyParser: false, // REQUIRED for multer
-  },
+  api: { bodyParser: false },
 };
 
-// Ensure uploads directory exists
-const uploadDir = path.join(process.cwd(), "public/uploads");
-if (!fs.existsSync(uploadDir)) {
-  fs.mkdirSync(uploadDir, { recursive: true });
-}
+// Multer memory storage (IMPORTANT)
+const upload = multer({ storage: multer.memoryStorage() });
 
-// Multer storage
-const storage = multer.diskStorage({
-  destination: (req, file, cb) => {
-    cb(null, uploadDir);
-  },
-  filename: (req, file, cb) => {
-    const unique = Date.now() + "-" + Math.round(Math.random() * 1e9);
-    cb(null, unique + "-" + file.originalname);
+// DigitalOcean Spaces config
+const s3 = new S3Client({
+  region: "sfo3",
+  endpoint: "https://sfo3.digitaloceanspaces.com",
+  credentials: {
+    accessKeyId: process.env.DO_SPACES_KEY,
+    secretAccessKey: process.env.DO_SPACES_SECRET,
+    
   },
 });
-
-const upload = multer({ storage });
-
+console.log("KEY:", process.env.DO_SPACES_KEY);
+console.log("SECRET:", process.env.DO_SPACES_SECRET);
 export default function handler(req, res) {
   if (cors(req, res)) return;
 
@@ -34,9 +28,9 @@ export default function handler(req, res) {
     return res.status(405).json({ error: "Method not allowed" });
   }
 
-  upload.single("file")(req, res, err => {
+  upload.single("file")(req, res, async err => {
     if (err) {
-      console.error("Multer error:", err);
+      console.error(err);
       return res.status(500).json({ error: "Upload error" });
     }
 
@@ -44,14 +38,29 @@ export default function handler(req, res) {
       return res.status(400).json({ error: "No file uploaded" });
     }
 
-    const baseUrl =
-      process.env.NEXT_PUBLIC_API_BASE || "http://localhost:3000";
+    try {
+      const fileName = Date.now() + "-" + req.file.originalname;
 
-    const fileUrl = `${baseUrl}/uploads/${req.file.filename}`;
+      const command = new PutObjectCommand({
+        Bucket: "chvwahtsapp", // your space name
+        Key: `whatsappmarketingimages/${fileName}`,
+        Body: req.file.buffer,
+        ACL: "public-read",
+        ContentType: req.file.mimetype,
+      });
 
-    return res.status(200).json({
-      url: fileUrl,
-      filename: req.file.filename,
-    });
+      await s3.send(command);
+
+      const fileUrl = `https://chvwahtsapp.sfo3.digitaloceanspaces.com/whatsappmarketingimages/${fileName}`;
+
+      return res.status(200).json({
+        url: fileUrl,
+        filename: fileName,
+      });
+
+    } catch (error) {
+      console.error("Upload failed:", error);
+      return res.status(500).json({ error: "Upload failed" });
+    }
   });
 }
