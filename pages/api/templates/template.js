@@ -27,6 +27,7 @@ if (cors(req, res)) return;
         buttons
       } = req.body;
 
+
       const templateQuery = `
         INSERT INTO template_table (
           created_by,

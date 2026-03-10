@@ -35,8 +35,8 @@ export default async function handler(req, res) {
 
       const result = await pool.query(
         `INSERT INTO campaign (userid, templateid, campaign_name, status)
-         VALUES ($1, $2, $3, $4)
-         RETURNING *`,
+        VALUES ($1, $2, $3, $4)
+        RETURNING *`,
         [
           userid,
           templateid || null,
